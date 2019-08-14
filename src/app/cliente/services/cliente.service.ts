@@ -1,9 +1,37 @@
 import { Injectable } from '@angular/core';
+import { AngularFireModule } from '@angular/fire';
+import { Observable } from 'rxjs';
+import { Cliente } from '../models/cliente';
+import { AngularFirestore, DocumentReference } from '@angular/fire/firestore';
+import { ClienteViewModel } from '../models/cliente-view-model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ClienteService {
 
-  constructor() { }
+  constructor(private db: AngularFirestore) { }
+
+  private clienteCollection = "clientes";
+  
+  getClientes(): Observable<firebase.firestore.QuerySnapshot>{
+    return this.db.collection<Cliente>(this.clienteCollection, ref => ref.orderBy('nome')).get();
+  };
+
+  salvarClientes(cliente: Cliente): Promise<DocumentReference>{
+    return this.db.collection(this.clienteCollection).add(cliente);
+  }
+
+  editarClientes(cliente: ClienteViewModel): Promise<void>{
+    return this.db.collection(this.clienteCollection).doc(cliente.id).update(cliente);
+  }
+
+  editarClientesParcial(id: string, obj: Object): Promise<void>{
+    return this.db.collection(this.clienteCollection).doc(id).update(obj);
+  }
+
+  deletarCliente(id: string): Promise<void>{
+    return this.db.collection(this.clienteCollection).doc(id).delete();
+  }
+
 }
